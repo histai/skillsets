@@ -29,7 +29,7 @@ This repository is compatible with **Claude Code**, **OpenAI Codex**, and **Gemi
 
 1. **Register this repository as a plugin marketplace:**
    ```
-   /plugin marketplace add histai/datahub
+   /plugin marketplace add histai/skillsets
    ```
 
 2. **Install all skills at once:**
@@ -56,8 +56,8 @@ If you prefer local installation:
 
 1. **Clone this repository:**
    ```bash
-   git clone https://github.com/histai/datahub.git
-   cd datahub
+   git clone https://github.com/histai/skillsets.git
+   cd skillsets
    ```
 
 2. **Register as a local plugin:**
@@ -72,8 +72,8 @@ Codex automatically detects skills via the `agents/AGENTS.md` file.
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/histai/datahub.git
-   cd datahub
+   git clone https://github.com/histai/skillsets.git
+   cd skillsets
    ```
 
 2. **Verify skills are loaded:**
@@ -94,13 +94,13 @@ This repository includes `gemini-extension.json` for Gemini CLI integration.
 
 1. **Install from GitHub:**
    ```bash
-   gemini extensions install https://github.com/histai/datahub.git --consent
+   gemini extensions install https://github.com/histai/skillsets.git --consent
    ```
 
    Or install locally:
    ```bash
-   git clone https://github.com/histai/datahub.git
-   cd datahub
+   git clone https://github.com/histai/skillsets.git
+   cd skillsets
    gemini extensions install . --consent
    ```
 
@@ -138,7 +138,7 @@ Monitor running training jobs with epoch-by-epoch metrics, stop/adjust/resume tr
 ## Repository Structure
 
 ```
-datahub/
+skillsets/
 ├── .claude-plugin/
 │   ├── plugin.json                # Claude Code plugin configuration
 │   └── marketplace.json           # Claude Code marketplace configuration

@@ -1,4 +1,9 @@
 {
-  "name": "cohort-builder",
-  "version": "1.0.0"
+  "name": "histai-skillsets",
+  "version": "2.0.0",
+  "skills": [
+    "skills/cohort_builder",
+    "skills/ai_model_trainer",
+    "skills/training_monitor"
+  ]
 }

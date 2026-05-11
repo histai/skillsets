@@ -16,12 +16,12 @@ This skill provides secure access to the HistAI Datahub, allowing you to search 
 All requests require an API Key.
 
 ```bash
-export HISTAI_API_KEY="your-api-key"
+export CELLDX_API_KEY="your-api-key"
 ```
 
 Include the key in the `X-API-KEY` header:
 ```
-X-API-KEY: $HISTAI_API_KEY
+X-API-KEY: $CELLDX_API_KEY
 ```
 
 Users can generate API keys at **Profile and settings → API keys** on [https://celldx.hist.ai](https://celldx.hist.ai).
@@ -186,7 +186,7 @@ Pay for a cohort to enable export. This endpoint is idempotent and requires an `
 
 **Headers:**
 ```
-X-API-KEY: $HISTAI_API_KEY
+X-API-KEY: $CELLDX_API_KEY
 Idempotency-Key: <unique-uuid>
 ```
 

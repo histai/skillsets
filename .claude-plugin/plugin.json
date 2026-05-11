@@ -1,13 +1,11 @@
 {
-    "name": "cohort-builder",
-    "description": "Search and export pathology cases from HistAI Whole Slide Image Data Hub",
-    "version": "1.0.0",
+    "name": "histai-skillsets",
+    "description": "Search pathology cases, build cohorts, train ML models, and monitor training on the HistAI Whole Slide Image Data Hub",
+    "version": "2.0.0",
     "author": {
         "name": "HistAI",
         "email": "sales@hist.ai"
     },
-    "skills": [
-        "skills"
-    ],
+    "skills": "./skills/",
     "homepage": "https://github.com/histai/datahub"
 }

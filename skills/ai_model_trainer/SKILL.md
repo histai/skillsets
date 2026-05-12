@@ -11,6 +11,30 @@ All requests require `X-API-Key: ${CELLDX_API_KEY}` header.
 
 ---
 
+## ⛔ CRITICAL: Training Uses Pre-Extracted Features — NOT WSI Files
+
+**Read this before doing anything else. This is the most common mistake agents make.**
+
+CellDX has **two completely independent workflows**, each with its own dataset, cost model, and skill:
+
+| Workflow | Skill | Dataset | What it costs | When to use |
+|----------|-------|---------|---------------|-------------|
+| **Buy WSIs** | `cohort_builder` | Whole Slide Images (220K+ slides instantly available, 1M+ via custom request) | **Per-slide pricing**: $5/H&E, $40/IHC (volume discounts apply) | User wants to **download** WSI files for external use, manual review, or their own pipeline |
+| **Train a model** | `ai_model_trainer` (this skill) | Pre-extracted feature vectors (~66K slides) | **GPU compute only** (session billing in $/GPU-hour) | User wants to **train a classifier** on CellDX infrastructure |
+
+### Rules — apply on EVERY training request
+
+1. **DO NOT create a cohort, do not call `/v1/datahub/cohorts`, do not call `/pay`, do not download WSIs when the user asks you to train a model.** The trainer reads features directly from the server-side feature store. The user does not own and does not need to own the underlying WSIs.
+2. **DO NOT include WSI per-slide prices ($5 / $40 etc.) in any cost estimate for a training job.** Training cost = GPU hours × GPU rate, reported via the session billing endpoint. The slide price table in the `cohort_builder` skill is irrelevant to training and must not be quoted to the user in a training context.
+3. **Use `POST /v1/ml-jobs/data/slides/features` to check which `file_id`s have features available.** This endpoint is read-only, free, and does NOT trigger any purchase. It is the ONLY correct way to assemble a training cohort.
+4. **The training "cohort" object (`cohort.train` / `cohort.val` / `cohort.test`) is an in-memory job parameter — it is NOT the same as a Datahub `/v1/datahub/cohorts` cohort.** Same word, different concept. Never reuse a Datahub cohort ID as a training cohort.
+5. **When estimating cost for a training job, the answer is ONLY GPU compute.** Example correct answer: "Estimated 4 GPU-hours × $X/hr ≈ $Y. No WSI purchase is needed — training reads pre-extracted features." Example WRONG answer: "200 slides × $5 = $1000 plus GPU…"
+6. **If the user explicitly asks to both buy WSIs AND train a model**, run the two workflows separately and report two separate costs (WSI purchase cost from `cohort_builder`, GPU cost from this skill). Do not bundle them; do not imply one requires the other.
+
+If at any point you find yourself about to call a `/v1/datahub/cohorts*` or `/v1/billing/topup` endpoint as part of a training task — **stop**. You are in the wrong workflow.
+
+---
+
 ## Recommended Pipeline (Full)
 
 The recommended workflow runs three phases as **separate jobs** to find the best model automatically:
@@ -297,10 +321,11 @@ Use the Training Monitor skill to track progress. For the full pipeline, proceed
 ---
 
 ## Important Notes
+- **Training does NOT require buying WSIs.** Features are pre-extracted server-side. Never quote WSI per-slide prices ($5 / $40) as part of a training cost estimate, and never trigger a Datahub cohort purchase as a "prerequisite" for training. See the top-of-file critical section.
 - **Parameter tuning, cross-validation, and single training are mutually exclusive** — each is a separate job
 - **Multi-strategy comparison requires separate job submissions** — one per strategy, same parameters
 - The API is fully deterministic — never invent parameter values outside the ranges from `/v1/ml-jobs/options`
-- **Always call `POST /v1/ml-jobs/data/slides/features` before submitting a job** — build the cohort only from the returned `available` list
+- **Always call `POST /v1/ml-jobs/data/slides/features` before submitting a job** — build the cohort only from the returned `available` list. This endpoint is free and does not purchase anything.
 - Sample IDs in the cohort must be `file_id` UUIDs (slide-level); `case_id` UUIDs are not accepted by the trainer
 - The data source (feature store location and format) is configured server-side — do not include it in job requests
 - **Never deploy a model automatically** — always present training results to the user and get explicit approval before calling the deploy endpoint

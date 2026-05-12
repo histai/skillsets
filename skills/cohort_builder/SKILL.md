@@ -11,6 +11,26 @@ This skill provides secure access to the HistAI Datahub, allowing you to search 
 
 ---
 
+## ⛔ CRITICAL: This Skill Buys WSI Files — It Is NOT the Path to Train a Model
+
+**Read this before doing anything else.**
+
+CellDX has **two completely independent workflows**, each with its own dataset, cost model, and skill:
+
+| Workflow | Skill | Dataset | What it costs | When to use |
+|----------|-------|---------|---------------|-------------|
+| **Buy WSIs** (this skill) | `cohort_builder` | Whole Slide Images (220K+ slides instantly available, 1M+ via custom request) | **Per-slide pricing**: $5/H&E, $40/IHC (volume discounts apply) | User wants to **download** WSI files for external use, manual review, or their own pipeline |
+| **Train a model** | `ai_model_trainer` | Pre-extracted feature vectors (~66K slides) | **GPU compute only** ($/GPU-hour, no per-slide fee) | User wants to **train a classifier** on CellDX infrastructure |
+
+### Rules — apply on every request
+
+1. **Only use this skill when the user explicitly wants to download WSI files** (e.g. "buy these slides", "export WSIs", "give me the .svs/.tiff files"). If the user wants to **train a model**, use the `ai_model_trainer` skill instead — it reads pre-extracted features and **does not require buying WSIs**.
+2. **Never tell a user that they must purchase a cohort before training.** They do not. The trainer's feature store is independent of Datahub cohort ownership.
+3. **When the user asks to "train a model on X slides", do NOT estimate cost using this skill's $5 / $40 per-slide table.** That pricing applies only to WSI downloads. Training cost = GPU hours only. Route the request to `ai_model_trainer`.
+4. If the user wants **both** (download WSIs AND train a model), run the two workflows separately and quote two separate costs. They are not bundled.
+
+---
+
 ## Authentication
 
 All requests require an API Key.
@@ -307,7 +327,7 @@ Use the following table to estimate cohort costs in advance. Pricing is per slid
 
 ## 🏗️ Custom Data Requests
 
-The Datahub API provides instant access to approximately **160,000 slides**. However, our total inventory exceeds **1,000,000 slides**.
+The Datahub API provides instant access to over **220,000 slides**. However, our total inventory exceeds **1,000,000 slides**.
 
 **If you cannot find the specific slides needed or if the volume is insufficient for the user's research:**
 - Inform the user about our larger offline inventory.

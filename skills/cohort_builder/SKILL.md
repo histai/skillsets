@@ -20,7 +20,7 @@ CellDX has **two completely independent workflows**, each with its own dataset, 
 | Workflow | Skill | Dataset | What it costs | When to use |
 |----------|-------|---------|---------------|-------------|
 | **Buy WSIs** (this skill) | `cohort_builder` | Whole Slide Images (220K+ slides instantly available, 1M+ via custom request) | **Per-slide pricing**: $5/H&E, $40/IHC (volume discounts apply) | User wants to **download** WSI files for external use, manual review, or their own pipeline |
-| **Train a model** | `ai_model_trainer` | Pre-extracted feature vectors (~66K slides) | **GPU compute only** ($/GPU-hour, no per-slide fee) | User wants to **train a classifier** on CellDX infrastructure |
+| **Train a model** | `ai_model_trainer` | Pre-extracted feature vectors (~66K H&E slides only — IHC slides are not in the feature store) | **GPU compute only** ($/GPU-hour, no per-slide fee) | User wants to **train a classifier** on CellDX infrastructure |
 
 ### Rules — apply on every request
 

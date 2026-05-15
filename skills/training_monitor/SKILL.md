@@ -165,6 +165,7 @@ Status values: `PENDING` → `PROCESSING` → `SUCCESS` | `FAILED`. The `widgetI
 
 ## Important Notes
 - **Training jobs run on pre-extracted features — they do NOT consume WSI purchases.** When reporting cost (e.g. via `GET /v1/ml-jobs/sessions/{session_id}`), the figure is GPU compute only. Never add WSI per-slide prices ($5 H&E, $40 IHC from the `cohort_builder` skill) to a training cost report — those apply only when downloading WSI files, which is a separate workflow. CellDX has 220K+ WSIs available for purchase via `cohort_builder` and ~66K slides with pre-extracted features available for training via `ai_model_trainer`; the two flows are independent.
+- **The feature store contains H&E slides only.** IHC slides are not included and will always appear as `missing` when checking feature availability. If a user's cohort includes IHC slides, make clear they cannot be used for training.
 - All adjustments are explicit — the API never auto-adjusts parameters
 - When reporting metrics, always show actual numbers, not vague descriptions
 - The resume endpoint creates a NEW job (new job_id) that loads the checkpoint from the parent

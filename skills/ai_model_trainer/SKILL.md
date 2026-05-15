@@ -20,7 +20,7 @@ CellDX has **two completely independent workflows**, each with its own dataset, 
 | Workflow | Skill | Dataset | What it costs | When to use |
 |----------|-------|---------|---------------|-------------|
 | **Buy WSIs** | `cohort_builder` | Whole Slide Images (220K+ slides instantly available, 1M+ via custom request) | **Per-slide pricing**: $5/H&E, $40/IHC (volume discounts apply) | User wants to **download** WSI files for external use, manual review, or their own pipeline |
-| **Train a model** | `ai_model_trainer` (this skill) | Pre-extracted feature vectors (~66K slides) | **GPU compute only** (session billing in $/GPU-hour) | User wants to **train a classifier** on CellDX infrastructure |
+| **Train a model** | `ai_model_trainer` (this skill) | Pre-extracted feature vectors (~66K H&E slides only — IHC slides are not in the feature store) | **GPU compute only** (session billing in $/GPU-hour) | User wants to **train a classifier** on CellDX infrastructure |
 
 ### Rules — apply on EVERY training request
 
@@ -209,6 +209,8 @@ Response:
 ```
 
 **Use only the `available` list when building the cohort.** If the available count is too low for meaningful training (e.g. fewer than 20 samples per class), inform the user and do not submit the job.
+
+> **Note**: The feature store currently contains extracted features for **H&E slides only**. IHC slides will always appear in the `missing` list — this is expected, not a data gap. If the user's cohort includes IHC slides, inform them before checking availability so they are not surprised.
 
 ### Step 2c: Split the Cohort (mandatory: 75 / 15 / 15)
 

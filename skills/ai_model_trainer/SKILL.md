@@ -26,7 +26,7 @@ CellDX has **two completely independent workflows**, each with its own dataset, 
 
 1. **DO NOT create a cohort, do not call `/v1/datahub/cohorts`, do not call `/pay`, do not download WSIs when the user asks you to train a model.** The trainer reads features directly from the server-side feature store. The user does not own and does not need to own the underlying WSIs.
 2. **DO NOT include WSI per-slide prices ($5 / $40 etc.) in any cost estimate for a training job.** Training cost = GPU hours × GPU rate, reported via the session billing endpoint. The slide price table in the `cohort_builder` skill is irrelevant to training and must not be quoted to the user in a training context.
-3. **Use `POST /v1/ml-jobs/data/slides/features` to check which `file_id`s have features available.** This endpoint is read-only, free, and does NOT trigger any purchase. It is the ONLY correct way to assemble a training cohort.
+3. **Use `/v1/ml-jobs/data/slides/features` to check which `file_id`s have features available.** Two shapes on the same endpoint: `GET` returns the full set of available file_ids in one round trip (preferred — cache locally, intersect against your candidate list); `POST {file_ids: [...]}` filters a specific list and reports what's missing. Both are read-only, free, and do NOT trigger any purchase. This is the ONLY correct way to assemble a training cohort.
 4. **The training "cohort" object (`cohort.train` / `cohort.val` / `cohort.test`) is an in-memory job parameter — it is NOT the same as a Datahub `/v1/datahub/cohorts` cohort.** Same word, different concept. Never reuse a Datahub cohort ID as a training cohort.
 5. **When estimating cost for a training job, the answer is ONLY GPU compute.** Example correct answer: "Estimated 4 GPU-hours × $X/hr ≈ $Y. No WSI purchase is needed — training reads pre-extracted features." Example WRONG answer: "200 slides × $5 = $1000 plus GPU…"
 6. **If the user explicitly asks to both buy WSIs AND train a model**, run the two workflows separately and report two separate costs (WSI purchase cost from `cohort_builder`, GPU cost from this skill). Do not bundle them; do not imply one requires the other.
@@ -191,6 +191,25 @@ Ask the user to choose:
 
 Before building the cohort, filter the slide list to only slides that have extracted features. Not all slides in the database have features yet (~66K available).
 
+Two shapes on the same endpoint — pick whichever matches the workload:
+
+**Bulk fetch (preferred for cohort assembly):** `GET` returns every file_id with extracted features in one round trip. Cache the response and intersect against your candidate list locally — avoids one round-trip per slide.
+
+```
+GET /v1/ml-jobs/data/slides/features
+X-API-Key: ${CELLDX_API_KEY}
+```
+
+Response:
+```json
+{
+  "file_ids": ["<file_id_1>", "<file_id_2>", ...],
+  "total_available": 66191
+}
+```
+
+**Filter a known list:** `POST` filters a specific candidate set and reports what's missing.
+
 ```
 POST /v1/ml-jobs/data/slides/features
 X-API-Key: ${CELLDX_API_KEY}
@@ -208,9 +227,9 @@ Response:
 }
 ```
 
-**Use only the `available` list when building the cohort.** If the available count is too low for meaningful training (e.g. fewer than 20 samples per class), inform the user and do not submit the job.
+**Use only the `available` list (POST) or the intersection with `file_ids` (GET) when building the cohort.** If the available count is too low for meaningful training (e.g. fewer than 20 samples per class), inform the user and do not submit the job.
 
-> **Note**: The feature store currently contains extracted features for **H&E slides only**. IHC slides will always appear in the `missing` list — this is expected, not a data gap. If the user's cohort includes IHC slides, inform them before checking availability so they are not surprised.
+> **Note**: The feature store currently contains extracted features for **H&E slides only**. IHC slides will always be missing — this is expected, not a data gap. If the user's cohort includes IHC slides, inform them before checking availability so they are not surprised.
 
 ### Step 2c: Split the Cohort (mandatory: 75 / 15 / 15)
 
@@ -327,7 +346,7 @@ Use the Training Monitor skill to track progress. For the full pipeline, proceed
 - **Parameter tuning, cross-validation, and single training are mutually exclusive** — each is a separate job
 - **Multi-strategy comparison requires separate job submissions** — one per strategy, same parameters
 - The API is fully deterministic — never invent parameter values outside the ranges from `/v1/ml-jobs/options`
-- **Always call `POST /v1/ml-jobs/data/slides/features` before submitting a job** — build the cohort only from the returned `available` list. This endpoint is free and does not purchase anything.
+- **Always check `/v1/ml-jobs/data/slides/features` before submitting a job** — prefer the `GET` form to fetch and cache the full available set, then build the cohort only from file_ids that are in it. (`POST {file_ids: [...]}` is the same check in filter form.) The endpoint is free and does not purchase anything.
 - Sample IDs in the cohort must be `file_id` UUIDs (slide-level); `case_id` UUIDs are not accepted by the trainer
 - The data source (feature store location and format) is configured server-side — do not include it in job requests
 - **Never deploy a model automatically** — always present training results to the user and get explicit approval before calling the deploy endpoint

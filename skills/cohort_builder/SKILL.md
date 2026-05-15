@@ -327,7 +327,7 @@ Use the following table to estimate cohort costs in advance. Pricing is per slid
 
 ## 🏗️ Custom Data Requests
 
-The Datahub API provides instant access to over **220,000 slides**. However, our total inventory exceeds **1,000,000 slides**.
+The Datahub API provides instant access to **281,655 slides across 73,334 cases**. However, our total inventory exceeds **1,000,000 slides**.
 
 **If you cannot find the specific slides needed or if the volume is insufficient for the user's research:**
 - Inform the user about our larger offline inventory.

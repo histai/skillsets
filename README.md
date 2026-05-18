@@ -10,6 +10,7 @@ This repository provides:
 - 💾 **Export whole slide images (WSI)** with comprehensive metadata
 - 🤖 **Train slide classification models** on Azure GPU compute
 - 📈 **Monitor training jobs** with real-time metrics and iterative adjustment
+- 🧪 **Upload your own WSIs and run AI widgets** on them (public or custom), retrieving annotations and segmentation masks
 - 💰 **Manage costs** with volume-based pricing and selective slide downloads
 
 ## Security & Access Requirements
@@ -49,6 +50,8 @@ This repository is compatible with **Claude Code**, **OpenAI Codex**, and **Gemi
    - Example: *"Search for breast cancer cases with HER2 IHC staining"*
    - Example: *"Train a classifier on my breast cancer cohort"*
    - Example: *"How is my training job going?"*
+   - Example: *"Upload this slide and run the melanocytic widget on it"*
+   - Example: *"List my cases and show which widgets are installed"*
 
 #### Manual Installation (Alternative)
 
@@ -110,7 +113,7 @@ This repository includes `gemini-extension.json` for Gemini CLI integration.
    ```
 
 3. **Start using:**
-   - The Gemini CLI will automatically load all three skills
+   - The Gemini CLI will automatically load all four skills
    - Interact with the HistAI Datahub through natural language
 
 See [Gemini CLI extensions docs](https://geminicli.com/docs/extensions/#installing-an-extension) for more help.
@@ -135,6 +138,12 @@ Monitor running training jobs with epoch-by-epoch metrics, stop/adjust/resume tr
 
 **Full documentation:** [`skills/training_monitor/SKILL.md`](skills/training_monitor/SKILL.md)
 
+### 🧪 Slide Analyzer
+
+Upload your own WSIs to "My Cases", install AI widgets (public store or custom-trained), run them on uploaded slides, and retrieve the result — including segmentation masks — via a single poll endpoint. Also covers case/slide browsing and deletion.
+
+**Full documentation:** [`skills/slide_analyzer/SKILL.md`](skills/slide_analyzer/SKILL.md)
+
 ## Repository Structure
 
 ```
@@ -149,8 +158,10 @@ skillsets/
 │   │   └── SKILL.md               # Cohort building and data export
 │   ├── ai_model_trainer/
 │   │   └── SKILL.md               # ML training job submission
-│   └── training_monitor/
-│       └── SKILL.md               # Training monitoring and deployment
+│   ├── training_monitor/
+│   │   └── SKILL.md               # Training monitoring and deployment
+│   └── slide_analyzer/
+│       └── SKILL.md               # Upload WSIs to My Cases and run AI widgets
 ├── gemini-extension.json          # Gemini CLI extension configuration
 └── README.md                      # This file
 ```

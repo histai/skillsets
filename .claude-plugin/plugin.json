@@ -1,7 +1,7 @@
 {
     "name": "histai-skillsets",
-    "description": "Search pathology cases, build cohorts, train ML models, and monitor training on the HistAI Whole Slide Image Data Hub",
-    "version": "2.0.0",
+    "description": "Search pathology cases, build cohorts, train ML models, monitor training, and upload + analyze your own WSIs with AI widgets on the HistAI Whole Slide Image Data Hub",
+    "version": "2.1.0",
     "author": {
         "name": "HistAI",
         "email": "sales@hist.ai"

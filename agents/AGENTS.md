@@ -215,4 +215,84 @@ X-API-Key: $CELLDX_API_KEY
 
 ---
 
+## Slide Analyzer
+
+**Skill ID:** `slide_analyzer`
+**Path:** `skills/slide_analyzer/SKILL.md`
+
+### Description
+
+Upload your own whole slide images to "My Cases" on CellDX, install AI widgets (public store or your custom-trained widgets), run them on uploaded slides, and retrieve results — including segmentation masks — via a unified poll endpoint. Also covers case/slide browsing and deletion to free storage.
+
+### Prerequisites
+
+- Active subscription on [CellDX platform](https://celldx.hist.ai)
+- 2FA authentication enabled
+- API Key generated from Profile Settings → API Keys
+- Sufficient storage quota for uploads, and analysis credits for widget runs
+
+### Environment Setup
+
+```bash
+export CELLDX_API_KEY="your-api-key"
+```
+
+### When to Use This Skill
+
+Use this skill when the user wants to:
+- Upload a WSI from a local file or a URL into their own "My Cases"
+- Browse their workspaces / projects / cases / slides
+- Discover available AI widgets and install/uninstall them
+- Run an AI widget on one of their slides and fetch the resulting layout or segmentation mask
+- Delete slides or cases to reclaim storage
+
+**Do not** use this skill to buy slides from the public Datahub (that's `cohort_builder`) or to train a model (that's `ai_model_trainer`).
+
+### Key Capabilities
+
+1. **WSI Upload**
+   - Multipart upload from a local file
+   - Server-side fetch from a public HTTP/HTTPS URL (SSRF-guarded)
+   - Polling progress and aborting in-flight uploads
+   - Same validation errors as the web UI (`INVALID_FILE_EXTENSION`, `NOT_PYRAMIDAL`, `NOT_ENOUGH_USER_STORAGE_SPACE`, …)
+
+2. **My Cases Browse**
+   - List workspaces / projects / cases / slides
+   - Fetch slide metadata and layout JSON
+
+3. **AI Widget Management**
+   - List public widgets with `isInstalled` flags
+   - List custom (self-trained) widgets
+   - Install / uninstall
+
+4. **Run & Result**
+   - `POST /widgets/{id}/analyze` returns `{ analysisTaskId }`
+   - `GET /widgets/analyze/task/{taskId}` returns status + (when COMPLETED) the layout JSON in a single response
+   - Segmentation widgets return a `segmentation` block inside `layout`
+
+5. **Deletion**
+   - `DELETE /images/{id}` and `DELETE /datasets/{id}` (ownership-checked, irreversible)
+
+### ⚠️ Safety
+
+- **Always confirm `DELETE`** of a slide or case with the user — irreversible.
+- **Always confirm `POST /widgets/{id}/analyze`** if the widget has a per-run charge.
+- **Respect rate-limit headers** (`Retry-After`, `X-RateLimit-Remaining`) — see the SKILL.md table for per-endpoint buckets.
+
+### API Base URL
+
+```
+https://prod.celldx.net/v1
+```
+
+### Authentication
+
+All requests require the `X-API-KEY` header:
+
+```bash
+X-API-KEY: $CELLDX_API_KEY
+```
+
+---
+
 For detailed API documentation, examples, and best practices, refer to the individual skill files.
